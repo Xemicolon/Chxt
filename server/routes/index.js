@@ -1,10 +1,13 @@
 var express = require("express");
 var router = express.Router();
+const { authenticate, limit } = require("../middleware/index");
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
-  // res.cookie(req.sessionID);
-  res.status(200).json(req.session);
+router.get("/", limit, authenticate, (req, res, next) => {
+  res.status(200).json({
+    success: true,
+    user: req.session.user,
+  });
 });
 
 module.exports = router;

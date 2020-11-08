@@ -13,7 +13,7 @@ exports.register = ash(async (req, res, next) => {
     return;
   }
 
-  if (password.length < 5) {
+  if (password.length < 6) {
     res.status(400).json({
       success: false,
       message: "Password must be more than 5 characters long.",
@@ -28,25 +28,85 @@ exports.register = ash(async (req, res, next) => {
     });
     return;
   }
+  try {
+    // Check if user exists before creating an account
+    const user = await User.findOne({ username: username });
 
-  // Check if user exists before creating an account
-  const user = await User.findOne({ username: username });
+    if (user) {
+      res.status(400).json({
+        success: false,
+        message: "Hmm.. Account exists.",
+      });
+      return;
+    }
 
-  if (user) {
+    const newUser = await User.create({
+      username,
+      password,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Account created!",
+      user: newUser,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      err: err.message,
+      message: "Please contact site administrator.",
+    });
+  }
+});
+
+exports.login = ash(async (req, res, next) => {
+  const { username, password } = req.body;
+
+  // check for user input
+  if (!username || !password) {
     res.status(400).json({
       success: false,
-      message: "Hmm.. Account exists.",
+      message: "All the fields are required!",
     });
     return;
   }
 
-  const newUser = await User.create({
-    username,
-    password,
-  });
-  res.status(200).json({
-    success: true,
-    message: "Account created!",
-    user: newUser,
-  });
+  try {
+    const user = await User.findOne({ username });
+
+    // check for existence of a user
+    if (!user) {
+      res.status(400).json({
+        success: false,
+        message: "Account doesn't exist",
+      });
+    } else {
+      // compare password if username is correct
+      const checkPassword = comparePassword(password, user.password);
+
+      if (!checkPassword) {
+        res.status(400).json({
+          success: false,
+          message: "Your login info is incorrect!",
+        });
+        return;
+      }
+
+      req.session.user = {
+        id: req.sessionID,
+        username: username,
+      };
+
+      res.status(200).json({
+        success: true,
+        message: "You're logged in!",
+        user: req.session.user,
+      });
+    }
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      err: err.message,
+      message: "Please contact administrator.",
+    });
+  }
 });

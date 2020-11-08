@@ -13,11 +13,16 @@ const UserSchema = new Schema({
   },
   username: {
     type: String,
-    require: true,
+    required: true,
+    unique: true,
   },
   password: {
     type: String,
     required: true,
+  },
+  created: {
+    type: Date,
+    default: Date.now(),
   },
 });
 
