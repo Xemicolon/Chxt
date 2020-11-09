@@ -1,30 +1,35 @@
 const { Schema, model } = require("mongoose");
 const bcrypt = require("bcryptjs");
 
-const UserSchema = new Schema({
-  email: {
-    type: String,
-    unique: true,
-    trim: true,
-    match: [
-      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,5})+$/,
-      "Please enter a valid email address",
+const UserSchema = new Schema(
+  {
+    email: {
+      type: String,
+      unique: true,
+      trim: true,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,5})+$/,
+        "Please enter a valid email address",
+      ],
+    },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    friendList: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Friends",
+      },
     ],
   },
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  created: {
-    type: Date,
-    default: Date.now(),
-  },
-});
+  { timestamps: true }
+);
 
 UserSchema.pre("save", async function (next) {
   let user = this;
