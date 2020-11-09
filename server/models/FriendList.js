@@ -1,5 +1,5 @@
 const { Schema, model } = require("mongoose");
-const { schema } = require("./User");
+const { Schema } = require("./User");
 
 const FriendListSchema = new Schema({
   sender: {
