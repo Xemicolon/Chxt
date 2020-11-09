@@ -1,7 +1,7 @@
 var express = require("express");
 var router = express.Router();
 const { authenticate, limit } = require("../middleware/index");
-const { accountSettings } = require("../controllers/profile");
+const { accountSettings } = require("../controllers/dashboard");
 
 /* GET home page. */
 router.get("/dashboard", limit, authenticate, (req, res, next) => {
