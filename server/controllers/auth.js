@@ -93,20 +93,24 @@ exports.login = ash(async (req, res, next) => {
 
       req.session.regenerate((err) => {
         if (err) {
-          console.log(err);
-        } else {
-          req.session.user = {
-            id: req.sessionID,
-            username: username,
-          };
-
-          req.session.isLoggedIn = true;
-          res.status(200).json({
-            success: true,
-            message: "You're logged in!",
-            user: req.session.user,
+          res.status(500).json({
+            message: "Please contact website administrator",
+            err: err,
           });
+          return;
         }
+
+        req.session.user = {
+          id: req.sessionID,
+          username: username,
+        };
+
+        req.session.isLoggedIn = true;
+        res.status(200).json({
+          success: true,
+          message: "You're logged in!",
+          user: req.session.user,
+        });
       });
     }
   } catch (err) {
