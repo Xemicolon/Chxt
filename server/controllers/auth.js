@@ -96,6 +96,8 @@ exports.login = ash(async (req, res, next) => {
         username: username,
       };
 
+      req.session.isLoggedIn = true;
+
       res.status(200).json({
         success: true,
         message: "You're logged in!",
