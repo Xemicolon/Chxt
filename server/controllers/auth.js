@@ -122,7 +122,7 @@ exports.login = ash(async (req, res, next) => {
   }
 });
 
-exports.logout = ash(async (req, res, next) => {
+exports.logout = (req, res, next) => {
   if (!req.session.user && !req.session.isLoggedIn) {
     res.status(400).json({
       success: false,
@@ -147,4 +147,4 @@ exports.logout = ash(async (req, res, next) => {
       message: "You have successfully logged out!",
     });
   });
-});
+};
