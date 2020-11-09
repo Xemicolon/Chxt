@@ -91,22 +91,56 @@ exports.login = ash(async (req, res, next) => {
         return;
       }
 
-      req.session.user = {
-        id: req.sessionID,
-        username: username,
-      };
+      req.session.regenerate((err) => {
+        if (err) {
+          console.log(err);
+        } else {
+          req.session.user = {
+            id: req.sessionID,
+            username: username,
+          };
 
-      res.status(200).json({
-        success: true,
-        message: "You're logged in!",
-        user: req.session.user,
+          req.session.isLoggedIn = true;
+          res.status(200).json({
+            success: true,
+            message: "You're logged in!",
+            user: req.session.user,
+          });
+        }
       });
     }
   } catch (err) {
     res.status(500).json({
       success: false,
       err: err.message,
-      message: "Please contact administrator.",
+      message: "Please contact website administrator.",
     });
   }
+});
+
+exports.logout = ash(async (req, res, next) => {
+  if (!req.session.user && !req.session.isLoggedIn) {
+    res.status(400).json({
+      success: false,
+      message: "You don't have any user session!",
+    });
+    return;
+  }
+
+  res.clearCookie("chxt_session");
+  req.session.destroy((err) => {
+    if (err) {
+      res.status(500).json({
+        message: "Please contact website administrator",
+        err: err,
+      });
+      return;
+    }
+
+    res.clearCookie("chxt_session");
+    res.status(200).json({
+      success: true,
+      message: "You have successfully logged out!",
+    });
+  });
 });
