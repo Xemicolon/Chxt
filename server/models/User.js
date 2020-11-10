@@ -20,6 +20,9 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
+  phone_no: {
+    type: Number,
+  },
   created: {
     type: Date,
     default: Date.now(),

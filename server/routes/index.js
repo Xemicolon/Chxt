@@ -1,9 +1,15 @@
 var express = require("express");
 var router = express.Router();
 const { authenticate, limit } = require("../middleware/index");
-const { userDashboard } = require("../controllers/dashboard");
+const {
+  userDashboard,
+  userAccountSettings,
+  updateAccountInfo,
+} = require("../controllers/dashboard");
 
 /* GET home page. */
-router.get("/dashboard", limit, authenticate, userDashboard);
+router.get("/", limit, authenticate, userDashboard);
+router.get("/account-settings", authenticate, userAccountSettings);
+router.patch("/account-settings", authenticate, updateAccountInfo);
 
 module.exports = router;

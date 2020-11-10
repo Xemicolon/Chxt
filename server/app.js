@@ -13,7 +13,7 @@ const db = require("./db/db");
 // const cors = require("cors");
 
 const authRouter = require("./routes/auth");
-const indexRouter = require("./routes/index");
+const DashboardRouter = require("./routes/index");
 
 const app = express();
 const server = http.createServer(app);
@@ -37,8 +37,8 @@ app.use(xss());
 
 db();
 
-app.use("/", indexRouter);
 app.use("/auth/", authRouter);
+app.use("/dashboard/", DashboardRouter);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

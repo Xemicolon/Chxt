@@ -1,6 +1,6 @@
 const User = require("../models/User");
 const ash = require("express-async-handler");
-const { comparePassword } = require("../utils/bcrypt");
+const { comparePassword } = require("../utils/");
 const jwt = require("jsonwebtoken");
 
 exports.register = ash(async (req, res, next) => {
