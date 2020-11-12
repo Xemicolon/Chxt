@@ -5,6 +5,7 @@ const { compareOldPassword, UpdateUser } = require("../utils/");
 exports.userDashboard = ash(async (req, res, next) => {
   const details = new UpdateUser(req.session.user.username);
   const user = await details.getUser();
+
   res.status(200).json({
     success: true,
     status: "Online",
