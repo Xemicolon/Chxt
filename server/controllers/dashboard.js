@@ -12,8 +12,10 @@ exports.userDashboard = ash(async (req, res, next) => {
 
 exports.userAccountSettings = ash(async (req, res, next) => {
   const username = req.session.user.username;
+
   try {
     const user = await User.findOne({ username });
+
     res.status(200).json({
       success: true,
       user_info: {
@@ -35,7 +37,6 @@ exports.updateAccountInfo = ash(async (req, res, next) => {
   const username = req.session.user.username;
   const { email, phone_no, oldPassword, newPassword, cPassword } = req.body;
   const userInfo = await User.findOne({ username });
-
   let user = new UpdateUser(username, email, phone_no, newPassword, cPassword);
 
   if (email || phone_no || newPassword) {
@@ -52,6 +53,7 @@ exports.updateAccountInfo = ash(async (req, res, next) => {
         message: "Password does not match!",
       });
     }
+
     if (!oldPassword) {
       res.status(400).json({
         success: false,
@@ -72,6 +74,7 @@ exports.updateAccountInfo = ash(async (req, res, next) => {
       const userEmail = await user.updateEmail();
       const userPhone = await user.updatePhone();
       const userPassword = await user.updatePassword();
+
       res.status(200).json({
         success: true,
         message: "Your changes have been successfully saved!",
