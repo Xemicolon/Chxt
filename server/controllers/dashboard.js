@@ -1,11 +1,6 @@
 const User = require("../models/User");
 const ash = require("express-async-handler");
-const {
-  hashPassword,
-  confirmPassword,
-  confirmPasswordLength,
-  compareOldPassword,
-} = require("../utils/");
+const { compareOldPassword, UpdateUser } = require("../utils/");
 
 exports.userDashboard = ash(async (req, res, next) => {
   res.status(200).json({
@@ -40,52 +35,69 @@ exports.updateAccountInfo = ash(async (req, res, next) => {
   const username = req.session.user.username;
   const { email, phone_no, oldPassword, newPassword, cPassword } = req.body;
   const userInfo = await User.findOne({ username });
-  let newHashedPassword;
 
-  try {
-    if (newPassword) {
-      confirmPasswordLength(res, newPassword);
+  let user = new UpdateUser(username, email, phone_no, newPassword, cPassword);
+
+  if (email || phone_no || newPassword) {
+    if (newPassword && newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is too short!",
+      });
     }
 
-    if (newPassword && cPassword) {
-      confirmPassword(res, newPassword, cPassword);
+    if (newPassword && cPassword !== newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Password does not match!",
+      });
+    }
+    if (!oldPassword) {
+      res.status(400).json({
+        success: false,
+        message: "Enter password to save changes!",
+      });
+      return;
     }
 
-    if (oldPassword && newPassword && cPassword) {
-      if (compareOldPassword(res, oldPassword, userInfo)) {
-        newHashedPassword = await hashPassword(newPassword, userInfo);
-        console.log(newHashedPassword);
-      } else {
-        res.status(400).json({
+    if (oldPassword) {
+      let confirmPassword = compareOldPassword(oldPassword, userInfo);
+      if (!confirmPassword) {
+        return res.status(400).json({
           success: false,
-          message: "Password is incorrect!",
+          message: "Your password is incorrect!",
         });
       }
-    }
 
-    const user = await User.findOneAndUpdate(
-      { username },
-      {
-        email: email,
-        phone_no: phone_no,
-        password: newHashedPassword || userInfo.password,
-      }
-    );
-    await user.save();
-    const newUserInfo = await User.findOne({ username });
-    res.status(200).json({
-      success: true,
-      user_info: {
-        username: user.username,
-        email: newUserInfo.email || "Please update your email",
-        phone: newUserInfo.phone_no || "Please update your phone number",
-        password: newUserInfo.password || "*******",
-      },
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: "Please contact website administrator",
-      error: err.message,
-    });
+      const userEmail = await user.updateEmail();
+      const userPhone = await user.updatePhone();
+      const userPassword = await user.updatePassword();
+      res.status(200).json({
+        success: true,
+        message: "Your changes have been successfully saved!",
+        user_info: {
+          username: userInfo.username,
+          email:
+            userEmail.email ||
+            userInfo.email ||
+            "Please update your phone number",
+          phone:
+            userPhone.phone_no ||
+            userInfo.phone_no ||
+            "Please update your phone number",
+          password: userPassword.password || userInfo.password,
+        },
+      });
+    }
+    return;
   }
+  res.status(200).json({
+    success: true,
+    user_info: {
+      username: userInfo.username,
+      email: userInfo.email || "Please update your phone number",
+      phone: userInfo.phone_no || "Please update your phone number",
+      password: userInfo.password,
+    },
+  });
 });

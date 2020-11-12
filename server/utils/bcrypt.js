@@ -4,9 +4,11 @@ exports.comparePassword = (password, comparePassword) => {
   return bcrypt.compareSync(password, comparePassword);
 };
 
-exports.hashPassword = async (password, userInfo) => {
-  const user = await userInfo;
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(password, salt);
+exports.hashPassword = (password, userInfo) => {
+  const user = userInfo;
+  if (user.isModified) {
+    const saltRounds = 10;
+    user.password = bcrypt.hashSync(password, saltRounds);
+  }
   return user.password;
 };

@@ -1,7 +1,6 @@
 const User = require("../models/User");
 const ash = require("express-async-handler");
 const { comparePassword } = require("../utils/");
-const jwt = require("jsonwebtoken");
 
 exports.register = ash(async (req, res, next) => {
   const { username, password, cPassword } = req.body;
@@ -13,7 +12,7 @@ exports.register = ash(async (req, res, next) => {
     return;
   }
 
-  if (password.length < 6) {
+  if (password && password.length < 6) {
     res.status(400).json({
       success: false,
       message: "Password must be more than 5 characters long.",
@@ -21,10 +20,10 @@ exports.register = ash(async (req, res, next) => {
     return;
   }
 
-  if (cPassword !== password) {
+  if (password && cPassword !== password) {
     res.status(400).json({
       success: false,
-      message: "Password doesn't match.",
+      message: "Password does not match!",
     });
     return;
   }

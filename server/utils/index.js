@@ -1,14 +1,14 @@
 const { comparePassword, hashPassword } = require("./bcrypt");
 const {
-  confirmPassword,
-  confirmPasswordLength,
+  confirmPasswordMatch,
   compareOldPassword,
 } = require("./passwordchecker");
+const { UpdateUser } = require("./updateUserAccount");
 
 module.exports = {
   comparePassword,
   hashPassword,
-  confirmPassword,
-  confirmPasswordLength,
+  confirmPasswordMatch,
   compareOldPassword,
+  UpdateUser,
 };
